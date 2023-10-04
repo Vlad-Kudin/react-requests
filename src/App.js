@@ -21,14 +21,31 @@ function App() {
 
   const [jokes, setJokes] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   async function fetchJokesHandler() {
     setIsLoading(true);
-    const response = await fetch('https://official-joke-api.appspot.com/random_ten');
-    const data = await response.json();
-    setJokes(data);
+    setError(null);
+    try {
+      const response = await fetch('https://official-joke-api.appspot.com/random_ten');
+      if (!response.ok) {
+        throw new Error('Is there something wrong!')
+      }
+      const data = await response.json();
+      setJokes(data);
+    } catch(e) {
+      setError(e.message);
+    }
     setIsLoading(false);
   }
+
+  let content = <p>Jokes not found.</p>;
+
+  if (jokes.length > 0) content = <JokeList jokes={jokes} />;
+
+  if (error) content = <p>{error}</p>;
+
+  if (isLoading) content = <p>Jokes is loading...</p>;
 
   return (
     <React.Fragment>
@@ -36,9 +53,7 @@ function App() {
         <button onClick={fetchJokesHandler}>Fetch Jokes</button>
       </section>
       <section>
-        {!isLoading && jokes.length > 0 && <JokeList jokes={jokes} />}
-        {!isLoading && jokes.length === 0 && <p>Jokes not found.</p>}
-        {isLoading && <p>Jokes is loading...</p>}
+        {content}
       </section>
     </React.Fragment>
   );
