@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 
 import JokeList from "./components/JokeList";
+import AddJoke from "./components/AddJoke";
 import "./App.css";
 
 function App() {
@@ -29,9 +30,21 @@ function App() {
     fetchJokesHandler();
   }, [fetchJokesHandler]);
 
+  async function addJokeHandler(joke) {
+    const response = await fetch("https://react-course-http-8220d-default-rtdb.firebaseio.io.com/jokes.json", {
+      method: 'POST',
+      body: JSON.stringify(joke),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    const data = await response.json();
+    console.log(data)
+  }
+
   let content = <p>Jokes not found.</p>;
 
-  if (jokes.length > 0) content = <JokeList jokes={jokes} />;
+  if (jokes !== null && jokes !== undefined && jokes.length > 0) content = <JokeList jokes={jokes} />;
 
   if (error) content = <p>{error}</p>;
 
@@ -39,6 +52,9 @@ function App() {
 
   return (
     <React.Fragment>
+      <section>
+        <AddJoke onAddJoke={addJokeHandler}></AddJoke>
+      </section>
       <section>
         <button onClick={fetchJokesHandler}>Fetch Jokes</button>
       </section>
